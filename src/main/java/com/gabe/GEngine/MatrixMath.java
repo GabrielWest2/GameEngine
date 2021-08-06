@@ -4,7 +4,7 @@ import com.gabe.GEngine.rendering.Camera;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class Maths {
+public class MatrixMath {
 
 	public static Matrix4f createTransformationMatrix(Vector3f translation, Vector3f rotation, Vector3f scale) {
 		Matrix4f matrix = new Matrix4f();

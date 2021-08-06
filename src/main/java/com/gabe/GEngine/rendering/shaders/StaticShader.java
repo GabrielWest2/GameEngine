@@ -1,7 +1,7 @@
-package com.gabe.GEngine.shaders;
+package com.gabe.GEngine.rendering.shaders;
 
 import com.gabe.GEngine.rendering.Camera;
-import com.gabe.GEngine.Maths;
+import com.gabe.GEngine.MatrixMath;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
@@ -9,8 +9,8 @@ import java.awt.*;
 
 public class StaticShader extends ShaderProgram{
 	
-	private static final String VERTEX_FILE =   "src/main/java/com/gabe/GEngine/shaders/vertexShader.txt";
-	private static final String FRAGMENT_FILE = "src/main/java/com/gabe/GEngine/shaders/fragmentShader.txt";
+	private static final String VERTEX_FILE =   "vertexShader.txt";
+	private static final String FRAGMENT_FILE = "fragmentShader.txt";
 
 	private int location_transformationMatrix;
 	private int location_projectionMatrix;
@@ -42,13 +42,13 @@ public class StaticShader extends ShaderProgram{
 
 	@Override
 	public void loadViewMatrix(Camera camera){
-		Matrix4f viewMatrix = Maths.createViewMatrix(camera);
+		Matrix4f viewMatrix = MatrixMath.createViewMatrix(camera);
 		super.loadMatrix(location_viewMatrix, viewMatrix);
 	}
 
 	@Override
 	public void loadColor(Color color){
-		super.loadVector4(location_color, new Vector4f(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
+		super.loadVector4(location_color, new Vector4f(color.getRed()/255f, color.getGreen()/255f, color.getBlue()/255f, color.getAlpha()/255f));
 	}
 
 	@Override

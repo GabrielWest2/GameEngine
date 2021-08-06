@@ -2,20 +2,13 @@ package com.gabe.GEngine;
 
 import com.gabe.GEngine.gameobject.GameObject;
 import com.gabe.GEngine.gameobject.components.ModelRenderer;
-import com.gabe.GEngine.gameobject.components.Transform;
-import com.gabe.GEngine.objConverter.ModelData;
-import com.gabe.GEngine.objConverter.OBJFileLoader;
-import com.gabe.GEngine.rendering.Camera;
-import com.gabe.GEngine.rendering.RenderEntity;
-import com.gabe.GEngine.rendering.Renderer;
-import com.gabe.GEngine.shaders.ShaderProgram;
-import com.gabe.GEngine.shaders.StaticShader;
-import imgui.ImGui;
-import org.joml.Vector3f;
+import com.gabe.GEngine.rendering.*;
+import com.gabe.GEngine.rendering.display.DisplayManager;
+import com.gabe.GEngine.rendering.gui.ImGuiLayer;
+import com.gabe.GEngine.rendering.shaders.StaticShader;
 import com.gabe.GEngine.textures.Texture;
 import org.lwjgl.glfw.GLFW;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,92 +18,13 @@ public class MainGameLoop {
     private static AssetPool assetPool = new AssetPool(loader);
     private static Camera camera;
     private static List<GameObject> gameObjects = new ArrayList<>();
-
-    private static float[] vertices = {
-            -0.5f,0.5f,0,
-            -0.5f,-0.5f,0,
-            0.5f,-0.5f,0,
-            0.5f,0.5f,0,
-
-            -0.5f,0.5f,1,
-            -0.5f,-0.5f,1,
-            0.5f,-0.5f,1,
-            0.5f,0.5f,1,
-
-            0.5f,0.5f,0,
-            0.5f,-0.5f,0,
-            0.5f,-0.5f,1,
-            0.5f,0.5f,1,
-
-            -0.5f,0.5f,0,
-            -0.5f,-0.5f,0,
-            -0.5f,-0.5f,1,
-            -0.5f,0.5f,1,
-
-            -0.5f,0.5f,1,
-            -0.5f,0.5f,0,
-            0.5f,0.5f,0,
-            0.5f,0.5f,1,
-
-            -0.5f,-0.5f,1,
-            -0.5f,-0.5f,0,
-            0.5f,-0.5f,0,
-            0.5f,-0.5f,1
-
-    };
-
-    private static int texX = 2, texY = 0;
-    private static float width = 1/16f;
-    private static float x1 = width * texX, y1 = width * texY, x2 = width + width * texX, y2 = width + width * texY;
-    private static float[] textureCoords = {
-            x1,y1,
-            x1,y2,
-            x2,y2,
-            x2,y1,
-
-            x1,y1,
-            x1,y2,
-            x2,y2,
-            x2,y1,
-
-            x1,y1,
-            x1,y2,
-            x2,y2,
-            x2,y1,
-
-            x1,y1,
-            x1,y2,
-            x2,y2,
-            x2,y1,
-
-            x1,y1,
-            x1,y2,
-            x2,y2,
-            x2,y1,
-
-            x1,y1,
-            x1,y2,
-            x2,y2,
-            x2,y1
-    };
-
-    private static int[] indices = {
-            0,1,3,
-            3,1,2,
-            4,5,7,
-            7,5,6,
-            8,9,11,
-            11,9,10,
-            12,13,15,
-            15,13,14,
-            16,17,19,
-            19,17,18,
-            20,21,23,
-            23,21,22
-
-    };
-
+    private static double lastFrameTime = GLFW.glfwGetTime();
+    private static float deltaTime;
     private static Renderer renderer;
+
+    public static void main(String[] args) {
+        DisplayManager.start();
+    }
 
     public static Renderer getRenderer(){
         return renderer;
@@ -120,55 +34,63 @@ public class MainGameLoop {
         return isPrepared;
     }
 
-    public static void main(String[] args) {
-        DisplayManager.start();
-    }
 
-    private static double lastFrameTime = GLFW.glfwGetTime();
+
 
     public static void Init() {
-
-
-        ShaderProgram shader = new StaticShader();
         camera = new Camera();
         renderer = new Renderer(camera);
-
+        Framebuffer.SetupFrameBuffer(loader);
 
         Texture texture = assetPool.getTexture("textureAtlas");
-        Material material = assetPool.addMaterial(new Material("Standard Lit", shader, texture));
-
-        ModelData modelData = OBJFileLoader.loadOBJ("dragon");
-        RawModel dragonModel = loader.loadToVAO(modelData.getVertices(), modelData.getTextureCoords(), modelData.getIndices());
-
-        RawModel model = loader.loadToVAO(vertices, textureCoords, indices);
+        Material material = assetPool.addMaterial(new Material("Standard Unlit", new StaticShader(), texture));
 
 
-        GameObject object = new GameObject();
-        Transform transform = new Transform();
-        ModelRenderer renderer = new ModelRenderer();
-        renderer.setMaterial(material);
-        renderer.setModel(dragonModel);
-        object.addComponents(transform, renderer);
+        RawModel dragon = loader.loadObj("dragon");
+
+
+        GameObject object = new GameObject("Test cube 1", new ModelRenderer(dragon, material));
+        GameObject object1 = new GameObject("Test cube 2", new ModelRenderer(dragon, material)).setParent(object);
+        GameObject object2 = new GameObject("Test cube 3", new ModelRenderer(dragon, material));
+        GameObject object3 = new GameObject("Test cube 4", new ModelRenderer(dragon, material)).setParent(object2);
+        GameObject object4 = new GameObject("Test cube 5", new ModelRenderer(dragon, material)).setParent(object1);
 
         gameObjects.add(object);
+        gameObjects.add(object1);
+        gameObjects.add(object2);
+        gameObjects.add(object3);
+        gameObjects.add(object4);
 
         DisplayManager.setClearColor(131/255f, 178/255f, 252/255f);
         isPrepared = true;
     }
 
-    public static void Update() {
-
-        double deltaTime = (GLFW.glfwGetTime() - lastFrameTime);
+    private static void getDeltaTime(){
+        deltaTime = (float) (GLFW.glfwGetTime() - lastFrameTime);
         lastFrameTime = GLFW.glfwGetTime();
-        DisplayManager.startFrame((float) deltaTime);
-       // entity.moveBy(0.01f, 0, 0);
-        camera.move((float) deltaTime);
+    }
+
+    public static void Update()  {
+        getDeltaTime();
+        DisplayManager.startFrame(deltaTime);
+        camera.move(deltaTime);
+
+        //Start rendering scene to frame buffer
+        Framebuffer.bind();
+
         DisplayManager.clearColor();
-        
         renderer.render(gameObjects);
 
+        //Stop rendering to the frame buffer
+        Framebuffer.unbind();
+
+        renderGUI();
+
+    }
+
+    private static void renderGUI(){
         try {
-            ImGuiLayer.renderGui(gameObjects.get(0));
+            ImGuiLayer.renderGui(gameObjects.get(0), gameObjects);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }

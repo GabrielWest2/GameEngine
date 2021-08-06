@@ -1,4 +1,4 @@
-package com.gabe.GEngine;
+package com.gabe.GEngine.rendering;
 
 public class RawModel {
 	

@@ -1,5 +1,8 @@
 package com.gabe.GEngine;
 
+import com.gabe.GEngine.objConverter.ModelData;
+import com.gabe.GEngine.objConverter.OBJFileLoader;
+import com.gabe.GEngine.rendering.RawModel;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -13,9 +16,9 @@ import java.util.List;
 
 public class Loader {
 
-	private List<Integer> vaos = new ArrayList<Integer>();
-	private List<Integer> vbos = new ArrayList<Integer>();
-	private List<Integer> textures = new ArrayList<Integer>();
+	private List<Integer> vaos = new ArrayList<>();
+	private List<Integer> vbos = new ArrayList<>();
+	private List<Integer> textures = new ArrayList<>();
 
 
 	public RawModel loadToVAO(float[] positions, float[] textureCoordinates, int[] indices) {
@@ -25,6 +28,27 @@ public class Loader {
 		storeDataInAttributeList(1, 2, textureCoordinates);
 		unbindVAO();
 		return new RawModel(vaoID, indices.length);
+	}
+
+	public RawModel loadToVAO(float[] positions, float[] textureCoordinates, int[] indices, float[] normals) {
+		int vaoID = createVAO();
+		bindIndicesBuffer(indices);
+		storeDataInAttributeList(0, 3, positions);
+		storeDataInAttributeList(1, 2, textureCoordinates);
+		storeDataInAttributeList(2, 3, normals);
+		unbindVAO();
+		return new RawModel(vaoID, indices.length);
+	}
+
+	public RawModel loadObj(String fileName){
+		ModelData model = OBJFileLoader.loadOBJ(fileName);
+		RawModel rawModel;
+		if(model.getNormals() != null){
+			rawModel = loadToVAO(model.getVertices(), model.getTextureCoords(), model.getIndices());
+		}else{
+			rawModel = loadToVAO(model.getVertices(), model.getTextureCoords(), model.getIndices(), model.getNormals());
+		}
+		return rawModel;
 	}
 
 	public void cleanUp() {

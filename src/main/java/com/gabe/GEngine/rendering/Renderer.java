@@ -1,20 +1,18 @@
 package com.gabe.GEngine.rendering;
 
-import com.gabe.GEngine.DisplayManager;
 import com.gabe.GEngine.Material;
-import com.gabe.GEngine.Maths;
-import com.gabe.GEngine.RawModel;
+import com.gabe.GEngine.MatrixMath;
 import com.gabe.GEngine.gameobject.Component;
 import com.gabe.GEngine.gameobject.GameObject;
 import com.gabe.GEngine.gameobject.components.ModelRenderer;
 import com.gabe.GEngine.gameobject.components.Transform;
-import com.gabe.GEngine.shaders.ShaderProgram;
+import com.gabe.GEngine.rendering.display.DisplayManager;
+import com.gabe.GEngine.rendering.shaders.ShaderProgram;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -38,11 +36,11 @@ public class Renderer {
     public void batchEntities(List<RenderEntity> entities){
 
         entityBatches = new HashMap<>();
+        //Put entities into lists based on their material
         for(RenderEntity e : entities){
             Material material = e.getMaterial();
             if(entityBatches.containsKey(material)) {
-                List<RenderEntity> entityList = new ArrayList<>();
-                entityList.addAll(entityBatches.get(material));
+                List<RenderEntity> entityList = new ArrayList<>(entityBatches.get(material));
                 entityList.add(e);
                 entityBatches.put(material, entityList);
             }
@@ -70,12 +68,12 @@ public class Renderer {
                 }
             }
             if(!(material == null || model == null || transform == null)){
-                System.out.println("Kool");
                 renderEntities.add(new RenderEntity(transform.getPosition(), transform.getRotation(), transform.getScale(), model, material));
             }
         }
         batchEntities(renderEntities);
         //glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
         for(Material material : entityBatches.keySet()) {
             ShaderProgram shader = material.getShader();
             shader.start();
@@ -91,15 +89,13 @@ public class Renderer {
     }
 
     public void renderEntity(RenderEntity entity){
-        System.out.println(entity.getPosition());
         RawModel model = entity.getModel();
         Material material = entity.getMaterial();
         ShaderProgram shader = material.getShader();
-
         GL30.glBindVertexArray(model.getVaoID());
         GL20.glEnableVertexAttribArray(0);
         GL20.glEnableVertexAttribArray(1);
-        Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotation(), entity.getScale());
+        Matrix4f transformationMatrix = MatrixMath.createTransformationMatrix(entity.getPosition(), entity.getRotation(), entity.getScale());
         shader.loadTransformationMatrix(transformationMatrix);
         shader.loadColor(material.getColor());
         material.bindTexture();

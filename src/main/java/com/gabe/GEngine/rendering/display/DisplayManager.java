@@ -1,6 +1,6 @@
-package com.gabe.GEngine;
+package com.gabe.GEngine.rendering.display;
 
-import com.gabe.GEngine.listener.Keyboard;
+import com.gabe.GEngine.MainGameLoop;
 import imgui.*;
 import imgui.callback.ImStrConsumer;
 import imgui.callback.ImStrSupplier;
@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
+import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -25,8 +26,8 @@ public class DisplayManager {
 	// The window handle
 	private static long window;
 
-	private static final int WIDTH = 856;
-	private static final int HEIGHT = 482;
+	private static final int WIDTH = 1920;
+	private static final int HEIGHT = 1080;
 	private static final int FPS_CAP = 120;
 	private static int width = WIDTH, height = HEIGHT;
 	private static Vector3f clearColor = new Vector3f(1, 0, 0);
@@ -55,7 +56,7 @@ public class DisplayManager {
 
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
-		glfwSetErrorCallback(null).free();
+		Objects.requireNonNull(glfwSetErrorCallback(null)).free();
 	}
 
 	private static void init(){
@@ -72,9 +73,11 @@ public class DisplayManager {
 		glfwDefaultWindowHints(); // optional, the current window hints are already the default
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
+		glfwWindowHint(GLFW_DECORATED, GLFW_TRUE); // the window will be resizable
 
 		// Create the window
-		window = glfwCreateWindow(WIDTH, HEIGHT, "Editor", NULL, NULL);
+		//window = glfwCreateWindow(WIDTH, HEIGHT, "GabeEngine", GLFW.glfwGetPrimaryMonitor(), NULL);
+		window = glfwCreateWindow(WIDTH, HEIGHT, "GabeEngine", NULL, NULL);
 		if ( window == NULL )
 			throw new RuntimeException("Failed to create the GLFW window");
 
@@ -84,8 +87,12 @@ public class DisplayManager {
 			height = winHeight;
 			if(MainGameLoop.isPrepared()) {
 				MainGameLoop.getRenderer().updateProjectionMatrix();
-				glViewport(0, 0, width, height);
+
+				//glViewport(0, 0, width, height);
+				glViewport(0, 0, DisplayManager.getWidth(), DisplayManager.getHeight());
+				//Framebuffer.ResizeFrameBuffer();
 			}
+			System.out.println("Window resized");
 		});
 
 
@@ -102,6 +109,7 @@ public class DisplayManager {
 			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
 			// Center the window
+			assert vidmode != null;
 			glfwSetWindowPos(
 					window,
 					(vidmode.width() - pWidth.get(0)) / 2,
@@ -126,7 +134,7 @@ public class DisplayManager {
 	private static void loop(){
 
 		//clearColor();
-		glEnable(GL_DEPTH_TEST);
+
 
 
 		while ( !glfwWindowShouldClose(window) ) {
@@ -190,6 +198,7 @@ public class DisplayManager {
 
 		io.setIniFilename("ui.ini"); // We don't want to save .ini file
 		io.setConfigFlags(ImGuiConfigFlags.NavEnableKeyboard); // Navigation with keyboard
+		io.setConfigFlags(ImGuiConfigFlags.DockingEnable); // Navigation with keyboard
 		io.setBackendFlags(ImGuiBackendFlags.HasMouseCursors); // Mouse cursors to display while resizing windows etc.
 		io.setBackendPlatformName("imgui_java_impl_glfw");
 
@@ -320,7 +329,7 @@ public class DisplayManager {
 
 	public static void startFrame(final float deltaTime) {
 
-
+		glDepthFunc(GL_LESS);
 		// We SHOULD call those methods to update Dear ImGui state for the current frame
 		final ImGuiIO io = ImGui.getIO();
 		io.setDisplaySize(width, height);

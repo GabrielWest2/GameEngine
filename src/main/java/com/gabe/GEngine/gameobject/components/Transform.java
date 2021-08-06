@@ -10,7 +10,17 @@ import java.awt.*;
 public class Transform extends Component {
     private Vector3f position = new Vector3f(0, 0, -4);
     private Vector3f rotation = new Vector3f(0, 0, 0);
-    private Vector3f scale = new Vector3f(0, 0, 0);
+    private Vector3f scale = new Vector3f(1, 1, 1);
+
+    public void moveBy(Vector3f vec){
+        position.add(vec);
+    }
+
+    public void rotateBy(Vector3f vec){
+        rotation.rotateX(vec.x + rotation.x);
+        rotation.rotateY(vec.y + rotation.y);
+        rotation.rotateZ(vec.z + rotation.z);
+    }
 
     public Vector3f getPosition() {
         return position;

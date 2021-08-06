@@ -1,7 +1,6 @@
 package com.gabe.GEngine;
 
-import com.gabe.GEngine.shaders.ShaderProgram;
-import org.joml.Vector3f;
+import com.gabe.GEngine.rendering.shaders.ShaderProgram;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import com.gabe.GEngine.textures.Texture;

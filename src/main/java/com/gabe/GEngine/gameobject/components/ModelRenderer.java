@@ -1,13 +1,21 @@
 package com.gabe.GEngine.gameobject.components;
 
 import com.gabe.GEngine.Material;
-import com.gabe.GEngine.RawModel;
+import com.gabe.GEngine.rendering.RawModel;
 import com.gabe.GEngine.gameobject.Component;
-import com.gabe.GEngine.rendering.RenderEntity;
 
 public class ModelRenderer extends Component {
     private RawModel model;
     private Material material;
+
+    public ModelRenderer(){
+
+    }
+
+    public ModelRenderer(RawModel model, Material material){
+        this.model = model;
+        this.material = material;
+    }
 
     public RawModel getModel() {
         return model;

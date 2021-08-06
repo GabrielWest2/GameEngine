@@ -9,7 +9,5 @@ uniform vec4 color;
 void main(void){
     vec4 tex_color = texture(modelTexture, pass_textureCoordinates);
 
-	out_Color = tex_color;// * color;
-	out_Color = vec4(1, 0, 0, 1);
-
+	out_Color = tex_color + color;
 }
