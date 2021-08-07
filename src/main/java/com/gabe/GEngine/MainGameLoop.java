@@ -1,5 +1,6 @@
 package com.gabe.GEngine;
 
+import com.gabe.GEngine.examples.CubeExample;
 import com.gabe.GEngine.gameobject.GameObject;
 import com.gabe.GEngine.gameobject.components.ModelRenderer;
 import com.gabe.GEngine.rendering.*;
@@ -18,6 +19,7 @@ public class MainGameLoop {
     private static AssetPool assetPool = new AssetPool(loader);
     private static Camera camera;
     private static List<GameObject> gameObjects = new ArrayList<>();
+    private static GameObject selectedObject = null;
     private static double lastFrameTime = GLFW.glfwGetTime();
     private static float deltaTime;
     private static Renderer renderer;
@@ -34,8 +36,9 @@ public class MainGameLoop {
         return isPrepared;
     }
 
-
-
+    public static void setSelectedObject(GameObject selectedObject) {
+        MainGameLoop.selectedObject = selectedObject;
+    }
 
     public static void Init() {
         camera = new Camera();
@@ -45,21 +48,9 @@ public class MainGameLoop {
         Texture texture = assetPool.getTexture("textureAtlas");
         Material material = assetPool.addMaterial(new Material("Standard Unlit", new StaticShader(), texture));
 
-
-        RawModel dragon = loader.loadObj("dragon");
-
-
-        GameObject object = new GameObject("Test cube 1", new ModelRenderer(dragon, material));
-        GameObject object1 = new GameObject("Test cube 2", new ModelRenderer(dragon, material)).setParent(object);
-        GameObject object2 = new GameObject("Test cube 3", new ModelRenderer(dragon, material));
-        GameObject object3 = new GameObject("Test cube 4", new ModelRenderer(dragon, material)).setParent(object2);
-        GameObject object4 = new GameObject("Test cube 5", new ModelRenderer(dragon, material)).setParent(object1);
-
-        gameObjects.add(object);
-        gameObjects.add(object1);
-        gameObjects.add(object2);
-        gameObjects.add(object3);
-        gameObjects.add(object4);
+        gameObjects.add(CubeExample.getCube(loader, assetPool));
+        gameObjects.add(CubeExample.getCube(loader, assetPool));
+        gameObjects.add(CubeExample.getCube(loader, assetPool));
 
         DisplayManager.setClearColor(131/255f, 178/255f, 252/255f);
         isPrepared = true;
@@ -90,7 +81,7 @@ public class MainGameLoop {
 
     private static void renderGUI(){
         try {
-            ImGuiLayer.renderGui(gameObjects.get(0), gameObjects);
+            ImGuiLayer.renderGui(selectedObject, gameObjects);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }

@@ -9,6 +9,7 @@ import com.gabe.GEngine.gameobject.components.Transform;
 import com.gabe.GEngine.rendering.display.DisplayManager;
 import com.gabe.GEngine.rendering.shaders.ShaderProgram;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -68,11 +69,19 @@ public class Renderer {
                 }
             }
             if(!(material == null || model == null || transform == null)){
-                renderEntities.add(new RenderEntity(transform.getPosition(), transform.getRotation(), transform.getScale(), model, material));
+                Vector3f relativePosition = new Vector3f();
+                GameObject o = object;
+                while (o.getParent() != null){
+                    Transform pt = o.getParent().getComponent(Transform.class);
+                    if(pt != null)
+                        relativePosition.add(pt.getPosition());
+                    o = o.getParent();
+                }
+                renderEntities.add(new RenderEntity(relativePosition.add(transform.getPosition()), transform.getRotation(), transform.getScale(), model, material));
             }
         }
         batchEntities(renderEntities);
-        //glEnable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         for(Material material : entityBatches.keySet()) {
             ShaderProgram shader = material.getShader();

@@ -28,6 +28,11 @@ public class Camera {
 			position.y += MOVE_SPEED * deltaTime;
 		if (Keyboard.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT))
 			position.y -= MOVE_SPEED * deltaTime;
+
+		if (Keyboard.isKeyPressed(GLFW.GLFW_KEY_LEFT))
+			yaw -= 40 * deltaTime;
+		if (Keyboard.isKeyPressed(GLFW.GLFW_KEY_RIGHT))
+			yaw += 40 * deltaTime;
 	}
 
 	public Vector3f getPosition() {

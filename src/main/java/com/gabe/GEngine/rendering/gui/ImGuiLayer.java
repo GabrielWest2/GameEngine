@@ -1,5 +1,6 @@
 package com.gabe.GEngine.rendering.gui;
 
+import com.gabe.GEngine.MainGameLoop;
 import com.gabe.GEngine.rendering.display.DisplayManager;
 import com.gabe.GEngine.Material;
 import com.gabe.GEngine.gameobject.Component;
@@ -31,6 +32,7 @@ public class ImGuiLayer {
         renderInspector(selectedObject);
         renderHierarchy(objects);
         renderGameView();
+        ImGui.showDemoWindow();
 
         ImGui.end();
         ImGui.render();
@@ -83,100 +85,107 @@ public class ImGuiLayer {
                 ImGui.treePop();
             }
         }else{
+            ImGui.pushStyleColor(ImGuiCol.Button, 1, 1, 1, 0);
+            ImGui.pushStyleColor(ImGuiCol.ButtonHovered, 1, 1, 1, 0.066666666f);
+            ImGui.pushStyleVar(ImGuiStyleVar.FrameRounding, 0);
             if(object.getParent() == null){
                 ImGui.button("      " + object.getName());
             }else {
                 ImGui.button(" " + object.getName());
             }
+            ImGui.popStyleColor(2);
+            ImGui.popStyleVar(1);
             makeDraggable(object);
         }
 
     }
     private static void renderInspector(GameObject object) throws IllegalAccessException {
         ImGui.begin("Inspector");
-        for(Component component : object.getComponents()){
-            String componentName = component.getClass().getSimpleName();
-            if(ImGui.collapsingHeader(componentName)) {
-                ImGui.indent();
-                Class<?> objClass = component.getClass();
+        if(object != null) {
+            for (Component component : object.getComponents()) {
+                String componentName = component.getClass().getSimpleName();
+                if (ImGui.collapsingHeader(componentName)) {
+                    ImGui.indent();
+                    Class<?> objClass = component.getClass();
 
-                Field[] fields = objClass.getDeclaredFields();
-                for (Field field : fields) {
-                    if(Modifier.isPrivate(field.getModifiers()))
-                        field.setAccessible(true);
-                    String name = field.getName();
-                    Object value = field.get(component);
+                    Field[] fields = objClass.getDeclaredFields();
+                    for (Field field : fields) {
+                        if (Modifier.isPrivate(field.getModifiers()))
+                            field.setAccessible(true);
+                        String name = field.getName();
+                        Object value = field.get(component);
 
-                    if(value instanceof Integer){
-                        int[] ints = {(int) value};
-                        if(ImGui.dragInt(name, ints))
-                            field.set(component, ints[0]);
-                    }
-                    if(value instanceof Boolean){
-                        boolean bool = (boolean)value;
-                        if(ImGui.checkbox(name, bool)){
-                            bool = !bool;
-                            field.set(component, bool);
+                        if (value instanceof Integer) {
+                            int[] ints = {(int) value};
+                            if (ImGui.dragInt(name, ints))
+                                field.set(component, ints[0]);
+                        }
+                        if (value instanceof Boolean) {
+                            boolean bool = (boolean) value;
+                            if (ImGui.checkbox(name, bool)) {
+                                bool = !bool;
+                                field.set(component, bool);
+                            }
+
+                        }
+                        if (value instanceof String) {
+                            ImString string = new ImString(100);
+                            string.set(new ImString((String) value));
+                            if (ImGui.inputText(name, string)) {
+                                field.set(component, string.get());
+                            }
+                        }
+                        if (value instanceof Float) {
+                            float[] floats = {(float) value};
+                            if (ImGui.dragFloat(name, floats))
+                                field.set(component, floats[0]);
+                        }
+                        if (value instanceof Double) {
+                            double d = (double) value;
+                            float[] floats = {(float) d};
+                            if (ImGui.dragFloat(name, floats)) {
+                                double dob = floats[0];
+                                field.set(component, dob);
+                            }
+
+                        }
+                        if (value instanceof Color) {
+                            Color color = (Color) value;
+                            float[] vals = {color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f};
+                            if (ImGui.colorEdit4(name, vals))
+                                field.set(component, new Color(vals[0], vals[1], vals[2], vals[3]));
+                        }
+                        if (value instanceof Material) {
+                            Material mat = (Material) value;
+                            Color color = mat.getColor();
+                            float[] vals = {color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f};
+                            if (ImGui.colorEdit3(name, vals)) {
+                                mat.setColor(new Color(vals[0], vals[1], vals[2]));
+                            }
+
+                        }
+                        if (value instanceof Vector4f) {
+                            Vector4f vec = (Vector4f) value;
+                            float[] floats = {vec.x, vec.y, vec.z, vec.w};
+                            if (ImGui.dragFloat4(name, floats))
+                                field.set(component, new Vector4f(floats[0], floats[1], floats[2], floats[3]));
+                        }
+                        if (value instanceof Vector3f) {
+                            Vector3f vec = (Vector3f) value;
+                            float[] floats = {vec.x, vec.y, vec.z};
+                            if (ImGui.dragFloat3(name, floats))
+                                field.set(component, new Vector3f(floats[0], floats[1], floats[2]));
+                        }
+                        if (value instanceof Vector2f) {
+                            Vector2f vec = (Vector2f) value;
+                            float[] floats = {vec.x, vec.y};
+                            if (ImGui.dragFloat2(name, floats))
+                                field.set(component, new Vector2f(floats[0], floats[1]));
                         }
 
                     }
-                    if(value instanceof String){
-                        ImString string = new ImString(100);
-                        string.set(new ImString((String) value));
-                        if(ImGui.inputText(name, string)){
-                            field.set(component, string.get());
-                        }
-                    }
-                    if(value instanceof Float){
-                        float[] floats = {(float) value};
-                        if(ImGui.dragFloat(name, floats))
-                            field.set(component, floats[0]);
-                    }
-                    if(value instanceof Double){
-                        double d = (double) value;
-                        float[] floats = {(float) d};
-                        if(ImGui.dragFloat(name, floats)){
-                            double dob = floats[0];
-                            field.set(component, dob);
-                        }
-
-                    }
-                    if(value instanceof Color){
-                        Color color = (Color) value;
-                        float[] vals = {color.getRed()/255f, color.getGreen()/255f, color.getBlue()/255f, color.getAlpha()/255f};
-                        if(ImGui.colorEdit4(name, vals))
-                            field.set(component, new Color(vals[0], vals[1], vals[2], vals[3]));
-                    }
-                    if(value instanceof Material){
-                        Material mat = (Material) value;
-                        Color color = mat.getColor();
-                        float[] vals = {color.getRed()/255f, color.getGreen()/255f, color.getBlue()/255f};
-                        if(ImGui.colorEdit3(name, vals)){
-                            mat.setColor(new Color(vals[0], vals[1], vals[2]));
-                        }
-
-                    }
-                    if(value instanceof Vector4f){
-                        Vector4f vec = (Vector4f) value;
-                        float[] floats = {vec.x, vec.y, vec.z, vec.w};
-                        if(ImGui.dragFloat4(name, floats))
-                            field.set(component, new Vector4f(floats[0], floats[1], floats[2], floats[3]));
-                    }
-                    if(value instanceof Vector3f){
-                        Vector3f vec = (Vector3f) value;
-                        float[] floats = {vec.x, vec.y, vec.z};
-                        if(ImGui.dragFloat3(name, floats))
-                            field.set(component, new Vector3f(floats[0], floats[1], floats[2]));
-                    }
-                    if(value instanceof Vector2f){
-                        Vector2f vec = (Vector2f) value;
-                        float[] floats = {vec.x, vec.y};
-                        if(ImGui.dragFloat2(name, floats))
-                            field.set(component, new Vector2f(floats[0], floats[1]));
-                    }
-
+                    ImGui.unindent();
                 }
-                ImGui.unindent();
             }
         }
         ImGui.end();
@@ -219,6 +228,10 @@ public class ImGuiLayer {
             }
 
             ImGui.endDragDropTarget();
+        }
+
+        if(ImGui.isItemClicked()){
+            MainGameLoop.setSelectedObject(gameObject);
         }
     }
 

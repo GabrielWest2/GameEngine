@@ -45,6 +45,17 @@ public class GameObject {
         return this;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends Component> T getComponent(Class<T> clazz) {
+        for(Component component : components){
+            if(component.getClass().isAssignableFrom(clazz)) {
+                return (T)component;
+            }
+
+        }
+        return null;
+    }
+
     public GameObject addComponent(Component component) {
         this.components.add(component);
         return this;
