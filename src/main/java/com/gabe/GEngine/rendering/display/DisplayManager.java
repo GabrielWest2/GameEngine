@@ -8,16 +8,19 @@ import imgui.flag.*;
 import imgui.gl3.ImGuiImplGl3;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.stb.STBImage.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -116,6 +119,23 @@ public class DisplayManager {
 					(vidmode.height() - pHeight.get(0)) / 2
 			);
 		} // the stack frame is popped automatically
+
+		//Load icon using stb
+		try ( MemoryStack stack = stackPush() ) {
+			IntBuffer w = stack.mallocInt(1);
+			IntBuffer h = stack.mallocInt(1);
+			IntBuffer comp = stack.mallocInt(1);
+
+			ByteBuffer icon = stbi_load("assets/images/icon.png", w, h, comp, 4);
+
+			glfwSetWindowIcon(window, GLFWImage.mallocStack(1, stack)
+					.width(w.get(0))
+					.height(h.get(0))
+					.pixels(icon)
+			);
+
+			stbi_image_free(icon);
+		}
 
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);

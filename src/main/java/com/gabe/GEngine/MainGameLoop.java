@@ -1,6 +1,7 @@
 package com.gabe.GEngine;
 
 import com.gabe.GEngine.examples.CubeExample;
+import com.gabe.GEngine.gameobject.Component;
 import com.gabe.GEngine.gameobject.GameObject;
 import com.gabe.GEngine.gameobject.components.ModelRenderer;
 import com.gabe.GEngine.rendering.*;
@@ -44,6 +45,7 @@ public class MainGameLoop {
         camera = new Camera();
         renderer = new Renderer(camera);
         Framebuffer.SetupFrameBuffer(loader);
+        Component.initComponents();
 
         Texture texture = assetPool.getTexture("textureAtlas");
         Material material = assetPool.addMaterial(new Material("Standard Unlit", new StaticShader(), texture));
@@ -80,11 +82,7 @@ public class MainGameLoop {
     }
 
     private static void renderGUI(){
-        try {
-            ImGuiLayer.renderGui(selectedObject, gameObjects);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        ImGuiLayer.renderGui(selectedObject, gameObjects);
         DisplayManager.endFrame();
     }
 
