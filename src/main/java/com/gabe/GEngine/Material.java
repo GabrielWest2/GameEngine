@@ -19,6 +19,13 @@ public class Material {
         this.shader = shader;
         this.texture = texture;
     }
+
+
+
+    public Material(String name, ShaderProgram shader) {
+        this.name = name;
+        this.shader = shader;
+    }
     public Material(String name, ShaderProgram shader, Texture texture, Color color) {
         this.name = name;
         this.shader = shader;
@@ -34,8 +41,9 @@ public class Material {
 
 
     public void bindTexture(){
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL11.glBindTexture(GL13.GL_TEXTURE0, texture.getID());
+        if(this.texture == null)
+            return;
+        texture.bind();
     }
 
     public Color getColor() {

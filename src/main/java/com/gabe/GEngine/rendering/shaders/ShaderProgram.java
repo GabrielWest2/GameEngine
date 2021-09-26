@@ -1,7 +1,7 @@
 package com.gabe.GEngine.rendering.shaders;
 
 import com.gabe.GEngine.rendering.Camera;
-import com.gabe.GEngine.MatrixMath;
+import com.gabe.GEngine.utilities.MatrixMath;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -28,9 +28,9 @@ public abstract class ShaderProgram {
 
 	private static FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
-	public ShaderProgram(String vertexFile,String fragmentFile){
-		vertexShaderID = loadShader("src/main/java/com/gabe/GEngine/rendering/shaders/" + vertexFile,GL20.GL_VERTEX_SHADER);
-		fragmentShaderID = loadShader("src/main/java/com/gabe/GEngine/rendering/shaders/" + fragmentFile,GL20.GL_FRAGMENT_SHADER);
+	public ShaderProgram(String shaderDir){
+		vertexShaderID = loadShader("src/main/java/com/gabe/GEngine/rendering/shaders/"+shaderDir+"/vertexShader.txt", GL20.GL_VERTEX_SHADER);
+		fragmentShaderID = loadShader("src/main/java/com/gabe/GEngine/rendering/shaders/"+shaderDir+"/fragmentShader.txt", GL20.GL_FRAGMENT_SHADER);
 		programID = GL20.glCreateProgram();
 		GL20.glAttachShader(programID, vertexShaderID);
 		GL20.glAttachShader(programID, fragmentShaderID);

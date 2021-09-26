@@ -1,6 +1,6 @@
 package com.gabe.GEngine.rendering;
 
-import com.gabe.GEngine.Loader;
+import com.gabe.GEngine.utilities.Loader;
 import com.gabe.GEngine.rendering.display.DisplayManager;
 import com.gabe.GEngine.textures.Texture;
 

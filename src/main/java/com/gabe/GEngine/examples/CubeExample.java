@@ -1,16 +1,13 @@
 package com.gabe.GEngine.examples;
 
-import com.gabe.GEngine.AssetPool;
-import com.gabe.GEngine.Loader;
+import com.gabe.GEngine.utilities.AssetPool;
+import com.gabe.GEngine.utilities.Loader;
 import com.gabe.GEngine.Material;
 import com.gabe.GEngine.gameobject.GameObject;
 import com.gabe.GEngine.gameobject.components.ModelRenderer;
 import com.gabe.GEngine.rendering.RawModel;
-import com.gabe.GEngine.rendering.Renderer;
 import com.gabe.GEngine.rendering.shaders.StaticShader;
 import com.gabe.GEngine.textures.Texture;
-
-import java.util.Collections;
 
 public class CubeExample {
 

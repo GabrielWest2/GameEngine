@@ -1,6 +1,6 @@
 package com.gabe.GEngine.textures;
 
-import com.gabe.GEngine.Loader;
+import com.gabe.GEngine.utilities.Loader;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.opengl.GL11;
@@ -74,5 +74,10 @@ public class Texture {
 
     public int getID() {
         return this.id;
+    }
+
+    public void bind() {
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL11.glBindTexture(GL13.GL_TEXTURE0, id);
     }
 }

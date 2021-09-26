@@ -1,6 +1,9 @@
 package com.gabe.GEngine.rendering;
 
-import com.gabe.GEngine.listener.Keyboard;
+import com.gabe.GEngine.utilities.listener.Keyboard;
+import com.gabe.GEngine.utilities.listener.Mouse;
+import imgui.ImGui;
+import org.joml.Math;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
@@ -16,14 +19,30 @@ public class Camera {
 	public Camera(){}
 	
 	public void move(float deltaTime){
-		if (Keyboard.isKeyPressed(KeyEvent.VK_W))
-			position.z -= MOVE_SPEED * deltaTime;
-		if (Keyboard.isKeyPressed(KeyEvent.VK_S))
-			position.z += MOVE_SPEED * deltaTime;
-		if (Keyboard.isKeyPressed(KeyEvent.VK_A))
-			position.x -= MOVE_SPEED * deltaTime;
-		if (Keyboard.isKeyPressed(KeyEvent.VK_D))
-			position.x += MOVE_SPEED * deltaTime;
+		//if(ImGui.isAnyItemFocused())
+		//	return;
+
+
+
+		if (Keyboard.isKeyPressed(KeyEvent.VK_W)){
+			position.x += MOVE_SPEED * Math.sin(Math.toRadians(yaw)) * deltaTime;
+			position.z -= MOVE_SPEED * Math.cos(Math.toRadians(yaw)) * deltaTime;
+		}
+
+		if (Keyboard.isKeyPressed(KeyEvent.VK_S)){
+			position.x -= MOVE_SPEED * Math.sin(Math.toRadians(yaw)) * deltaTime;
+			position.z += MOVE_SPEED * Math.cos(Math.toRadians(yaw)) * deltaTime;
+		}
+		if (Keyboard.isKeyPressed(KeyEvent.VK_A)){
+			position.x -= MOVE_SPEED * Math.sin(Math.toRadians(yaw+90)) * deltaTime;
+			position.z += MOVE_SPEED * Math.cos(Math.toRadians(yaw+90)) * deltaTime;
+		}
+		if (Keyboard.isKeyPressed(KeyEvent.VK_D)){
+			position.x -= MOVE_SPEED * Math.sin(Math.toRadians(yaw-90)) * deltaTime;
+			position.z += MOVE_SPEED * Math.cos(Math.toRadians(yaw-90)) * deltaTime;
+		}
+
+
 		if (Keyboard.isKeyPressed(KeyEvent.VK_SPACE))
 			position.y += MOVE_SPEED * deltaTime;
 		if (Keyboard.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT))

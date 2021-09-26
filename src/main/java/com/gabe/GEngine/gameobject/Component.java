@@ -12,6 +12,7 @@ public abstract class Component {
     public static void initComponents(){
         addComponent(Transform.class);
         addComponent(ModelRenderer.class);
+        addComponent(ModelRenderer.class);
     }
 
     public static void addComponent(Class clazz){

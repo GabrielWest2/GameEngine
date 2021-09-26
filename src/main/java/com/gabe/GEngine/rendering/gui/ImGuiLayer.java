@@ -1,7 +1,7 @@
 package com.gabe.GEngine.rendering.gui;
 
 import com.gabe.GEngine.MainGameLoop;
-import com.gabe.GEngine.listener.Keyboard;
+import com.gabe.GEngine.utilities.listener.Keyboard;
 import com.gabe.GEngine.rendering.display.DisplayManager;
 import com.gabe.GEngine.Material;
 import com.gabe.GEngine.gameobject.Component;
@@ -19,7 +19,6 @@ import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -38,8 +37,8 @@ public class ImGuiLayer {
             renderInspector(selectedObject);
             renderHierarchy(objects);
             renderGameView();
-        }catch(ClassNotFoundException | NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e){
-
+        }catch(IllegalAccessException e){
+            e.printStackTrace();
         }
         ImGui.render();
     }
@@ -113,7 +112,7 @@ public class ImGuiLayer {
     }
     private static boolean combo = false;
 
-    private static void renderInspector(GameObject object) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private static void renderInspector(GameObject object) throws  IllegalAccessException {
         ImGui.begin("Inspector");
         if(object == null){
             ImGui.end();
@@ -225,7 +224,7 @@ public class ImGuiLayer {
                 }
                 ImGui.unindent();
             }
-        }
+        } 
         ImGui.newLine();
         if(ImGui.button("Add Component +", ImGui.getContentRegionAvailX(), 40)){
             combo = true;
@@ -240,9 +239,15 @@ public class ImGuiLayer {
             ImInt selected = new ImInt(0);
             if(ImGui.combo("Choose a component...", selected, classNames)){
                 String className = classNames[selected.get()];
+                System.out.println(selected.get());
+                System.out.println(className);
+                try {
+                    Component component = (Component) Class.forName("com.gabe.GEngine.gameobject.components." + className).getConstructor().newInstance();
+                    object.addComponent(component);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
 
-                Component component = (Component) Class.forName(className).getConstructor().newInstance();
-                object.addComponent(component);
                 combo = false;
             }
             if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_ESCAPE))

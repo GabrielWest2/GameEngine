@@ -1,16 +1,13 @@
 package com.gabe.GEngine.rendering.shaders;
 
 import com.gabe.GEngine.rendering.Camera;
-import com.gabe.GEngine.MatrixMath;
+import com.gabe.GEngine.utilities.MatrixMath;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
 import java.awt.*;
 
-public class StaticShader extends ShaderProgram{
-	
-	private static final String VERTEX_FILE =   "vertexShader.txt";
-	private static final String FRAGMENT_FILE = "fragmentShader.txt";
+public class StaticShader extends ShaderProgram {
 
 	private int location_transformationMatrix;
 	private int location_projectionMatrix;
@@ -18,7 +15,7 @@ public class StaticShader extends ShaderProgram{
 	private int location_color;
 
 	public StaticShader() {
-		super(VERTEX_FILE, FRAGMENT_FILE);
+		super("unlit");
 	}
 
 	@Override
