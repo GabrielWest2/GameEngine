@@ -1,6 +1,6 @@
 package com.gabe.GEngine.utilities;
 
-import com.gabe.GEngine.Material;
+import com.gabe.GEngine.rendering.Material;
 import com.gabe.GEngine.textures.Texture;
 
 import java.util.HashMap;

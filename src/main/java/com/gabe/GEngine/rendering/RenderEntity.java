@@ -1,6 +1,5 @@
 package com.gabe.GEngine.rendering;
 
-import com.gabe.GEngine.Material;
 import org.joml.Vector3f;
 
 public class RenderEntity {

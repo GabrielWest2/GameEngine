@@ -1,11 +1,9 @@
-package com.gabe.GEngine.examples;
+package com.gabe.GEngine.modelcreators;
 
-import com.gabe.GEngine.Material;
+import com.gabe.GEngine.rendering.Material;
 import com.gabe.GEngine.gameobject.GameObject;
 import com.gabe.GEngine.gameobject.components.ModelRenderer;
 import com.gabe.GEngine.rendering.RawModel;
-import com.gabe.GEngine.rendering.shaders.StaticShader;
-import com.gabe.GEngine.textures.Texture;
 import com.gabe.GEngine.utilities.AssetPool;
 import com.gabe.GEngine.utilities.FastNoiseLite;
 import com.gabe.GEngine.utilities.Loader;
@@ -26,7 +24,6 @@ public class TerrainGenerator {
 
         int count = VERTEX_COUNT * VERTEX_COUNT;
         float[] vertices = new float[count * 3];
-        //TODO use normals
         float[] normals = new float[count * 3];
         float[] textureCoords = new float[count*2];
         int[] indices = new int[6*(VERTEX_COUNT-1)*(VERTEX_COUNT-1)];
@@ -60,9 +57,8 @@ public class TerrainGenerator {
             }
         }
 
-        RawModel rawmodel = loader.loadToVAO(vertices, textureCoords, indices);
-        Texture texture = assetPool.getTexture("textureAtlas");
-        Material material = assetPool.getMaterial("Standard Unlit");
+        RawModel rawmodel = loader.loadToVAO(vertices, textureCoords, indices, normals);
+        Material material = assetPool.getMaterial("Terrain");
         terrain = new GameObject("Terrain", new ModelRenderer(rawmodel, material));
 
         return terrain;

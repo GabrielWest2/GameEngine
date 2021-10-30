@@ -17,20 +17,20 @@ import java.nio.FloatBuffer;
 
 public abstract class ShaderProgram {
 
-	private int programID;
-	private int vertexShaderID;
-	private int fragmentShaderID;
+	protected int programID;
+	protected int vertexShaderID;
+	protected int fragmentShaderID;
 
-	private int location_transformationMatrix;
-	private int location_projectionMatrix;
-	private int location_viewMatrix;
-	private int location_color;
+	protected int location_transformationMatrix;
+	protected int location_projectionMatrix;
+	protected int location_viewMatrix;
+	protected int location_color;
 
 	private static FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
 	public ShaderProgram(String shaderDir){
-		vertexShaderID = loadShader("src/main/java/com/gabe/GEngine/rendering/shaders/"+shaderDir+"/vertexShader.txt", GL20.GL_VERTEX_SHADER);
-		fragmentShaderID = loadShader("src/main/java/com/gabe/GEngine/rendering/shaders/"+shaderDir+"/fragmentShader.txt", GL20.GL_FRAGMENT_SHADER);
+		vertexShaderID = loadShader("src/main/java/com/gabe/GEngine/rendering/shaders/"+shaderDir+"/vertexShader.shader", GL20.GL_VERTEX_SHADER);
+		fragmentShaderID = loadShader("src/main/java/com/gabe/GEngine/rendering/shaders/"+shaderDir+"/fragmentShader.shader", GL20.GL_FRAGMENT_SHADER);
 		programID = GL20.glCreateProgram();
 		GL20.glAttachShader(programID, vertexShaderID);
 		GL20.glAttachShader(programID, fragmentShaderID);
@@ -51,13 +51,13 @@ public abstract class ShaderProgram {
 		loadMatrix(location_transformationMatrix, matrix);
 	}
 
-	public void loadViewMatrix(Camera camera){
-		Matrix4f viewMatrix = MatrixMath.createViewMatrix(camera);
+	public void loadViewMatrix(){
+		Matrix4f viewMatrix = MatrixMath.createViewMatrix();
 		loadMatrix(location_viewMatrix, viewMatrix);
 	}
 
 	public void loadColor(Color color){
-		loadVector4(location_color, new Vector4f(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
+		loadVector4(location_color, new Vector4f(color.getRed()/255f, color.getGreen()/255f, color.getBlue()/255f, color.getAlpha()/255f));
 	}
 
 	public void loadProjectionMatrix(Matrix4f projection){

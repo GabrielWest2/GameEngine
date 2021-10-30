@@ -3,7 +3,6 @@ package com.gabe.GEngine.utilities;
 import com.gabe.GEngine.rendering.Camera;
 import com.gabe.GEngine.rendering.display.DisplayManager;
 import com.gabe.GEngine.utilities.listener.Mouse;
-import imgui.ImGui;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -18,7 +17,7 @@ public class MousePicker {
 
     public MousePicker(Camera camera, Matrix4f projectionMatrix) {
         this.projectionMatrix = projectionMatrix;
-        this.viewMatrix = MatrixMath.createViewMatrix(camera);
+        this.viewMatrix = MatrixMath.createViewMatrix();
         this.camera = camera;
     }
 
@@ -27,13 +26,13 @@ public class MousePicker {
     }
 
     public void update(){
-        this.viewMatrix = MatrixMath.createViewMatrix(camera);
+        this.viewMatrix = MatrixMath.createViewMatrix();
         mouseRay = calculateMouseRay();
     }
 
     private Vector3f calculateMouseRay() {
-        float mouseX = Mouse.getMouseX();
-        float mouseY = Mouse.getMouseY();
+        float mouseX = (float) Mouse.getMouseX();
+        float mouseY = (float) Mouse.getMouseY();
         Vector2f normalizedCoordinates = getNormalizedDeviceCoordinates(mouseX, mouseY);
         Vector4f clipCoordinates = new Vector4f(normalizedCoordinates.x, normalizedCoordinates.y, -1f, 1f);
         Vector4f eyeCoordinates = toEyeCoordinates(clipCoordinates);

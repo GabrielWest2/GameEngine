@@ -1,5 +1,6 @@
 package com.gabe.GEngine.utilities;
 
+import com.gabe.GEngine.objConverter.BlockbenchFileLoader;
 import com.gabe.GEngine.objConverter.ModelData;
 import com.gabe.GEngine.objConverter.OBJFileLoader;
 import com.gabe.GEngine.rendering.RawModel;
@@ -9,6 +10,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -49,6 +51,22 @@ public class Loader {
 			rawModel = loadToVAO(model.getVertices(), model.getTextureCoords(), model.getIndices(), model.getNormals());
 		}
 		return rawModel;
+	}
+
+	public RawModel loadBlockBenchObj(String fileName){
+		try {
+			ModelData model = BlockbenchFileLoader.loadOBJ(fileName);
+			RawModel rawModel;
+			if (model.getNormals() != null) {
+				rawModel = loadToVAO(model.getVertices(), model.getTextureCoords(), model.getIndices());
+			} else {
+				rawModel = loadToVAO(model.getVertices(), model.getTextureCoords(), model.getIndices(), model.getNormals());
+			}
+			return rawModel;
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public void cleanUp() {

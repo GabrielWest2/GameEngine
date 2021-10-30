@@ -1,7 +1,6 @@
 package com.gabe.GEngine.rendering;
 
-import com.gabe.GEngine.Material;
-import com.gabe.GEngine.textures.Texture;
+import com.gabe.GEngine.rendering.shaders.StaticShader;
 import com.gabe.GEngine.utilities.MatrixMath;
 import com.gabe.GEngine.gameobject.Component;
 import com.gabe.GEngine.gameobject.GameObject;
@@ -21,36 +20,25 @@ import java.util.List;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Renderer {
-    private float FOV = 70;
+    private float FOV = 100;
     private final float NEAR_PLANE = 0.1f;
     private final float FAR_PLANE = 1000f;
     private boolean wireframeMode = false;
-    private Texture wireframeTexture;
     public Matrix4f getProjectionMatrix() {
         return projectionMatrix;
     }
 
     private Matrix4f projectionMatrix;
     private boolean updateProjection = true;
-    private final Camera camera;
     private HashMap<Material, List<RenderEntity>> entityBatches;
 
-    public Renderer(Camera camera){
-        this.camera = camera;
+    public Renderer(){
         entityBatches = new HashMap<>();
         createProjectionMatrix();
     }
 
-    public boolean isWireframeMode() {
-        return wireframeMode;
-    }
-
     public void toggleWireframeMode(){
         this.wireframeMode = !this.wireframeMode;
-    }
-
-    public void setWireframeMode(boolean wireframeMode) {
-        this.wireframeMode = wireframeMode;
     }
 
     public void batchEntities(List<RenderEntity> entities){
@@ -70,9 +58,6 @@ public class Renderer {
         }
     }
 
-        public void setWireframeTexture(Texture wireframeTexture) {
-            this.wireframeTexture = wireframeTexture;
-        }
 
 
     public void render(List<GameObject> objects) {
@@ -80,6 +65,9 @@ public class Renderer {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         List<RenderEntity> renderEntities = new ArrayList<>();
         for(GameObject object : objects){
@@ -110,9 +98,20 @@ public class Renderer {
                 renderEntities.add(new RenderEntity(relativePosition.add(transform.getPosition()), transform.getRotation(), transform.getScale(), model, material));
             }
         }
-        batchEntities(renderEntities);
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_DEPTH_TEST);
+        for(RenderEntity entity : renderEntities){
+            if(entity.getMaterial() == null)
+                return;
+            ShaderProgram shader = entity.getMaterial().getShader();
+            shader.start();
+            entity.getMaterial().bindTexture();
+            if(updateProjection)
+                shader.loadProjectionMatrix(projectionMatrix);
+            shader.loadViewMatrix();
+            renderEntity(entity);
+            shader.stop();
+        }
+
+        /*batchEntities(renderEntities);
         for(Material material : entityBatches.keySet()) {
             ShaderProgram shader = material.getShader();
             shader.start();
@@ -123,32 +122,32 @@ public class Renderer {
                 renderEntity(entity);
             }
             shader.stop();
-        }
+        }*/
         updateProjection = false;
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     }
 
     public void renderEntity(RenderEntity entity){
         RawModel model = entity.getModel();
-        Material material;
-        material = entity.getMaterial();
-
-
+        Material
+                material = entity.getMaterial();
 
         ShaderProgram shader = material.getShader();
         GL30.glBindVertexArray(model.getVaoID());
         GL20.glEnableVertexAttribArray(0);
         GL20.glEnableVertexAttribArray(1);
+        GL20.glEnableVertexAttribArray(2);
+
         Matrix4f transformationMatrix = MatrixMath.createTransformationMatrix(entity.getPosition(), entity.getRotation(), entity.getScale());
         shader.loadTransformationMatrix(transformationMatrix);
         shader.loadColor(material.getColor());
-        if(!wireframeMode) {
-            material.bindTexture();
-        }else
-            wireframeTexture.bind();
+        StaticShader staticShader = (StaticShader) shader;
+        staticShader.bindLightPosition(new Vector3f(0, 10, 0));
+        material.bindTexture();
         GL11.glDrawElements(GL11.GL_TRIANGLES, model.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
         GL20.glDisableVertexAttribArray(0);
         GL20.glDisableVertexAttribArray(1);
+        GL20.glDisableVertexAttribArray(2);
         GL30.glBindVertexArray(0);
     }
 

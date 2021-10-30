@@ -1,6 +1,6 @@
 package com.gabe.GEngine.gameobject.components;
 
-import com.gabe.GEngine.Material;
+import com.gabe.GEngine.rendering.Material;
 import com.gabe.GEngine.rendering.RawModel;
 import com.gabe.GEngine.gameobject.Component;
 

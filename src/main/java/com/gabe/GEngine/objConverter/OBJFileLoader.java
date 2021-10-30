@@ -13,7 +13,7 @@ import java.util.List;
 
 public class OBJFileLoader {
 	
-	private static final String RES_LOC = "assets/";
+	private static final String RES_LOC = "assets/models/";
 
 	public static ModelData loadOBJ(String objFileName) {
 		FileReader isr = null;

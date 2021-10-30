@@ -1,4 +1,4 @@
-package com.gabe.GEngine;
+package com.gabe.GEngine.rendering;
 
 import com.gabe.GEngine.rendering.shaders.ShaderProgram;
 import org.lwjgl.opengl.GL11;

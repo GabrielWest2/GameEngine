@@ -1,36 +1,34 @@
 package com.gabe.GEngine;
 
-import com.gabe.GEngine.examples.CubeExample;
-import com.gabe.GEngine.examples.TerrainGenerator;
+import com.gabe.GEngine.gameobject.components.ModelRenderer;
+import com.gabe.GEngine.gameobject.components.Transform;
+import com.gabe.GEngine.modelcreators.TerrainGenerator;
 import com.gabe.GEngine.gameobject.Component;
 import com.gabe.GEngine.gameobject.GameObject;
 import com.gabe.GEngine.rendering.*;
 import com.gabe.GEngine.rendering.display.DisplayManager;
-import com.gabe.GEngine.rendering.gui.ImGuiLayer;
 import com.gabe.GEngine.rendering.shaders.StaticShader;
-import com.gabe.GEngine.rendering.shaders.WireframeShader;
-import com.gabe.GEngine.textures.Texture;
 import com.gabe.GEngine.utilities.AssetPool;
 import com.gabe.GEngine.utilities.Loader;
-import com.gabe.GEngine.utilities.MousePicker;
 import com.gabe.GEngine.utilities.listener.Keyboard;
 import com.gabe.GEngine.utilities.listener.Mouse;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainGameLoop {
+import static org.lwjgl.glfw.GLFW.*;
+
+public class GameLogic {
     private static boolean isPrepared = false;
     private static Loader loader = new Loader();
     private static AssetPool assetPool = new AssetPool(loader);
-    private static Camera camera;
     private static List<GameObject> gameObjects = new ArrayList<>();
     private static GameObject selectedObject = null;
     private static double lastFrameTime = GLFW.glfwGetTime();
     private static float deltaTime;
     private static Renderer renderer;
-    private static MousePicker picker;
 
     public static void main(String[] args) {
         DisplayManager.start();
@@ -45,32 +43,37 @@ public class MainGameLoop {
     }
 
     public static void setSelectedObject(GameObject selectedObject) {
-        MainGameLoop.selectedObject = selectedObject;
+        GameLogic.selectedObject = selectedObject;
     }
 
     //Wireframe mode
     public static boolean wasPressedLast = false;
 
+    private static void loadTextures(){
+        assetPool.getTexture("textureAtlas");
+        //assetPool.getTexture("arrow");
+       // assetPool.getTexture("grassTexture");
+        assetPool.getTexture("wireframe");
+    }
+
+    private static void loadMaterials(){
+
+        assetPool.addMaterial(new Material("Terrain", new StaticShader(), assetPool.getTexture("grassTexture")));
+
+    }
 
     public static void Init() {
-        camera = new Camera();
-        renderer = new Renderer(camera);
-        //picker = new MousePicker(camera, renderer.getProjectionMatrix());
+        renderer = new Renderer();
         Framebuffer.SetupFrameBuffer(loader);
         Component.initComponents();
 
+        loadTextures();
+        loadMaterials();
 
-        renderer.setWireframeTexture(assetPool.getTexture("wireframe"));
-        Texture texture = assetPool.getTexture("textureAtlas");
-        Texture grassTexture = assetPool.getTexture("grassTexture");
-        Material material = assetPool.addMaterial(new Material("Standard Unlit", new StaticShader(), grassTexture));
 
-        gameObjects.add(CubeExample.getCube(loader, assetPool));
-        gameObjects.add(CubeExample.getCube(loader, assetPool));
         gameObjects.add(TerrainGenerator.getTerrain(loader, assetPool));
-        gameObjects.add(CubeExample.getCube(loader, assetPool));
+        gameObjects.add(new GameObject("coolCube", new Transform().setPosition(new Vector3f(0, 0, -5)), new ModelRenderer(loader.loadBlockBenchObj("test_object"), new Material("TestModel", new StaticShader(), assetPool.getTexture("texture")))));
 
-        DisplayManager.setClearColor(131/255f, 178/255f, 252/255f);
         isPrepared = true;
     }
 
@@ -81,33 +84,32 @@ public class MainGameLoop {
 
     public static void Update()  {
         getDeltaTime();
-        DisplayManager.startFrame(deltaTime);
-        camera.move(deltaTime);
-        if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_R)) {
-            if(!wasPressedLast)
-                renderer.toggleWireframeMode();
-            wasPressedLast = true;
-        }else{
-            wasPressedLast = false;
+        Camera.update(deltaTime);
+        if(Keyboard.keyPressed(GLFW.GLFW_KEY_R)) {
+            renderer.toggleWireframeMode();
         }
-        //picker.update();
+        if(Mouse.isLeftDown()){
+            glfwSetInputMode(DisplayManager.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+
+        if(Keyboard.keyPressed(GLFW.GLFW_KEY_ESCAPE)){
+            glfwSetInputMode(DisplayManager.getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+
         //System.out.println(picker.getMouseRay());
         //Start rendering scene to frame buffer
-        Framebuffer.bind();
+        //Framebuffer.bind();
 
         DisplayManager.clearColor();
         renderer.render(gameObjects);
 
         //Stop rendering to the frame buffer
-        Framebuffer.unbind();
+       // Framebuffer.unbind();
 
-        renderGUI();
+        Mouse.update();
+        Keyboard.update();
     }
 
-    private static void renderGUI(){
-        ImGuiLayer.renderGui(selectedObject, gameObjects);
-        DisplayManager.endFrame();
-    }
 
 
     public static void Exit() {

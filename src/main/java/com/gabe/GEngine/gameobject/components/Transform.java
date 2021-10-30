@@ -26,23 +26,26 @@ public class Transform extends Component {
         return position;
     }
 
-    public void setPosition(Vector3f position) {
+    public Transform setPosition(Vector3f position) {
         this.position = position;
+        return this;
     }
 
     public Vector3f getRotation() {
         return rotation;
     }
 
-    public void setRotation(Vector3f rotation) {
+    public Transform setRotation(Vector3f rotation) {
         this.rotation = rotation;
+        return this;
     }
 
     public Vector3f getScale() {
         return scale;
     }
 
-    public void setScale(Vector3f scale) {
+    public Transform setScale(Vector3f scale) {
         this.scale = scale;
+        return this;
     }
 }

@@ -1,13 +1,11 @@
-package com.gabe.GEngine.examples;
+package com.gabe.GEngine.modelcreators;
 
 import com.gabe.GEngine.utilities.AssetPool;
 import com.gabe.GEngine.utilities.Loader;
-import com.gabe.GEngine.Material;
+import com.gabe.GEngine.rendering.Material;
 import com.gabe.GEngine.gameobject.GameObject;
 import com.gabe.GEngine.gameobject.components.ModelRenderer;
 import com.gabe.GEngine.rendering.RawModel;
-import com.gabe.GEngine.rendering.shaders.StaticShader;
-import com.gabe.GEngine.textures.Texture;
 
 public class CubeExample {
 
@@ -110,8 +108,7 @@ public class CubeExample {
     public static GameObject getCube(Loader loader, AssetPool assetPool){
             cubes++;
             RawModel rawmodel = loader.loadToVAO(vertices, textureCoordinates, indicies);
-            Texture texture = assetPool.getTexture("textureAtlas");
-            Material material = assetPool.addMaterial(new Material("Standard Unlit", new StaticShader(), texture));
+            Material material = assetPool.getMaterial("Terrain");
             gameObject = new GameObject("Cube Test " + cubes, new ModelRenderer(rawmodel, material));
 
         return  gameObject;
